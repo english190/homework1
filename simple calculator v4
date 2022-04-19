@@ -1,0 +1,129 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+	
+int isoperator(char c)
+{
+	if(c=='+'||c=='-'||c=='*'||c=='/')
+		return 1;
+	else
+		return 0;
+}
+
+void moveoperator(char *p)
+{
+	while(*p!='\0')
+	{
+		*p=*(p+1);
+		 p++;
+	}
+}
+
+void moveoperand(float *p, float *end)
+{
+	while(p!=end)
+    {
+	   *p=*(p+1);
+	    p++;
+    }
+}
+
+int main()
+{
+	//char strExp[]="1-2.5*4+10.2/5.1";
+	printf("please input a string expression including + - * / \n");
+	char strExp[100];
+	scanf("%s",strExp);
+	char operators[100]={'\0'};
+	float operands[100];
+	
+	//提取运算符 + - * / (extract operator)
+	int operatorsIndex=0;
+	for(int i=0;i<strlen(strExp);i++)
+	{
+		if(isoperator(strExp[i]))
+		{
+			operators[operatorsIndex]=strExp[i];
+			operatorsIndex++;
+		} 
+	}
+	//puts(operators)
+	
+	//提取操作数 1 2.5 4 10.2 5.1(extract operand)
+	int operandsIndex=0;
+	for(int i=0;i<strlen(strExp);i++)
+	{
+		char temp[100]={'\0'};
+		int tempIndex=0;
+		while(!isoperator(strExp[i]))
+		{
+			temp[tempIndex]=strExp[i];
+			i++;
+			tempIndex++;
+		}
+		float floatV = atof(temp);
+		operands[operandsIndex++]=floatV;
+		printf("%S\n",temp);
+	}
+	//for(int i=0;i<operandsIndex;i++)
+		//printf("%0.1f\n",operands[i]);
+	
+	//handle * /
+	char *poperator=operators;
+	float *poperand=operands;
+	while(*poperator!='\0')
+	{
+		if(*poperator=='*')
+		{
+			float left = *poperand;
+			float right = *(poperand+1);
+			float res = left * right;
+			*poperand = res;
+			moveoperator(poperator);
+			moveoperand(poperand+1,&operands[operandsIndex--]);
+			operandsIndex--;
+		}else if(*poperator=='/')
+			{
+			float left = *poperand;
+			float right = *(poperand+1);
+			float res = left / right;
+			*poperand = res;
+			moveoperator(poperator);
+			moveoperand(poperand+1,&operands[operandsIndex--]);
+			operandsIndex--;
+	    }else{
+			poperator++;
+			poperand++;
+		}
+	}
+	//puts(operators);  	
+	
+	//handle + -
+    poperator=operators;
+    poperand=operands;
+	while(*poperator!='\0')
+	{
+		if(*poperator=='+')
+		{
+			float left = *poperand;
+			float right = *(poperand+1);
+			float res = left + right;
+			*poperand = res;
+			moveoperator(poperator);
+			moveoperand(poperand+1,&operands[operandsIndex--]);
+			operandsIndex--;
+		}else if(*poperator=='-')
+			{
+			float left = *poperand;
+			float right = *(poperand+1);
+			float res = left - right;
+			*poperand = res;
+			moveoperator(poperator);
+			moveoperand(poperand+1,&operands[operandsIndex--]);
+			operandsIndex--;
+	    }
+	}
+	printf("the result is %0.2f\n",operands[0]);
+	
+	return 0;
+}
