@@ -1,5 +1,20 @@
 #include<stdio.h>
-#include<stdlib.h> 
+#include<stdlib.h>
+
+struct Transaction
+{
+	char username[100];
+	time_t timestamp;
+	int type;//0-取款，1-存款
+	int amount;
+	
+	struct Transaction * next;
+};
+typedef struct Transaction Transaction;
+
+//交易记录信息链表 
+Transaction * tHead=NULL;
+Transaction * tTail=NULL;
 
 struct Account
 {
@@ -51,6 +66,69 @@ void updatePassword()
 		printf("密码错误！不能修改！\n");
 	}
 	curAccount->next=NULL;
+}
+
+void drawMoney()
+{
+	printf("请输入取款金额：");
+	int money;
+	scanf("%d",&money);
+	
+	//验证金额
+	if(curAccount->money>=money)
+	{
+		printf("取款成功！\n");
+		curAccount->money-=money;
+		
+		//产生交易记录...	
+		
+		//创建结点
+		Transaction * newNode=(Transaction*)malloc(sizeof(Transaction)); 
+		
+		//结点初始化
+		newNode->next=NULL;
+		strcpy(newNode->username,curAccount->username);
+		newNode->timestamp=time(NULL);
+		newNode->type=0;
+		newNode->amount=money;
+		
+		//添加结点到链表
+		if(tHead==NULL)
+		{
+			tHead=newNode;
+			tTail=newNode;
+		}
+		else
+		{
+			tTail->next=newNode;
+			tTail=newNode;
+		}
+	} 
+	else
+	{
+		printf("余额不足！\n");
+	}
+}
+
+void saveMoney()
+{
+	printf("请输入存款金额：");
+	int money;
+	scanf("%d",&money);
+	printf("存款成功！\n");
+	curAccount->money+=money;
+	
+	//产生交易记录...	
+	
+}
+
+void homePage()
+{
+	system("cls");
+	//updatePassword(); 
+	
+	drawMoney();
+	//saveMoney();
 }
 
 void signIn()
@@ -112,7 +190,6 @@ int loadData()
 	}
 }
 
-	
 void loadData()
 {
 	FILE* fp=fopen("D:/atm.txt","r");
@@ -261,13 +338,25 @@ int main()
 	{
 		showMenuChinese(); //显示英文菜单 
 	}
-	
+	password();
+	drawmoney();
+	savemoney();
+	homepage();
+	signIn();
 	loadData();
-	
 	signUp();
-	
+	int status=loadData();//加载账户信息 
+	//loadTransaction();//加载交易记录信息
+	 
+	if(status==1)
+	{
+		printf("加载成功！\n");
+	}
+	else
+	{
+		printf("加载失败！\n");
+	}
 	printLinkedList();
-	
 	saveData();
 	return 0;
 }
